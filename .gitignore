@@ -1,0 +1,16 @@
+*ACADOtoolkit*
+
+*.m~
+*.asv
+*.mex*
+*.zip*
+*.avi*
+
+*.a
+*.o
+
+test
+
+*slprj*
+
+doc
