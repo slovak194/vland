@@ -1,1 +1,1 @@
-addpath('solver', 'sim6dof', 'generated')
+addpath('solver', 'sim6dof', 'generated', 'scripts')

@@ -34,6 +34,7 @@ input.WN = diag([...
 
 input.x = repmat(Xref, N+1, 1);
 Xref = repmat(Xref, N, 1);
+% input.od = repmat(p', N+1, 1);
 input.od = [];
 
 Uref = zeros(N, n_u);
@@ -50,6 +51,7 @@ state_sim = X0;
 u = [0;0;0];
 
 %%
+hf2 = figure(2);
 hf = figure(1);
 set(gcf,'renderer','zbuffer')
 cla
@@ -108,6 +110,8 @@ h.Matrix = T;
 drawnow
 %%
 
+stop = false;
+
 while time(end) < inf
     i = i+1;
     % Solve NMPC OCP
@@ -143,7 +147,7 @@ while time(end) < inf
     w_e = states.value(7:9);
     L = states.value(10:13);
     
-    [R_I, V_I, w_e, sim_input.u]
+    [R_I, V_I, w_e, sim_input.u];
     
     T(1:3,1:3) = quat2dcm(quatconj(L'));
     T(1:3,4) = R_I;
@@ -155,10 +159,9 @@ while time(end) < inf
     
     drawnow
     
-    if R_I(3) < a
+    if R_I(3) < a || ~ishandle(hf2)
         break
     end
-    
 end
 
 %%

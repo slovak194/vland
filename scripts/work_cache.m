@@ -1,5 +1,18 @@
 clc
 
+
+X = sym('X', [13, 1], 'real');
+u = sym('u', [3, 1], 'real');
+p = sym('p', [25, 1], 'real');
+
+[XXX, ~] = get_simulate(@get_symgen_step_6dof, X, u,  dt, p);
+
+% [A, b] = equationsToMatrix(dX, X)
+
+
+
+%%
+
 m = 5;
 dt = 1;
 % 

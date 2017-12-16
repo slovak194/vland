@@ -10,6 +10,8 @@ DifferentialState V_I(3,1)
 DifferentialState w_e(3,1)
 DifferentialState L(4,1)
 
+% OnlineData p(25, 1)
+
 % AlgebraicState
 
 Control Fthrust_e(3,1)
