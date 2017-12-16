@@ -21,15 +21,16 @@ J_e = diag([J_e_xx, J_e_yy, J_e_zz]); % Inertia tensor for a cilinder
 J_e_inv = inv(J_e);
 
 Xthrust_e = [0; 0; -a];
+Xwind_e = [0; 0; 0];
 
-p = [a; b; g; m; J_e(:); J_e_inv(:); Xthrust_e(:)];
+p = [a; b; g; m; J_e(:); J_e_inv(:); Xthrust_e(:); Xwind_e(:)];
 
 %% MPC params
 
 n_X = 13;
 n_u = 3;
 
-N = 20;
+N = 50;
 
 lateral_thrust_lim = 0.5*m*g;
 longitudal_thrust_up_lim = 2*m*g;

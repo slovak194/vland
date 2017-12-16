@@ -20,14 +20,21 @@ X = [...
 
 Fthrust_e = sym('Fthrust_e', [3, 1], 'real');
 Xthrust_e = sym('Xthrust_e', [3, 1], 'real');
-u = [Fthrust_e];
+
+
+Fwind_I = sym('Fwind_I', [3, 1], 'real');
+Fwind_e = quatrotate_sym(L, Fwind_I);
+Xwind_e = sym('Xwind_e', [3, 1], 'real');
+Mwind_e = cross(Xwind_e, Fwind_e);
+
+u = [Fthrust_e; Fwind_I];
 
 Fmg_I = [0; 0; -m*g];
 Fthrust_I = quatrotate_sym(quatconj_sym(L), Fthrust_e);
 Mthrust_e = cross(Xthrust_e, Fthrust_e);
 
-E_Fi_I = Fthrust_I + Fmg_I;
-E_Mi_e = Mthrust_e;
+E_Fi_I = Fthrust_I + Fmg_I + Fwind_I;
+E_Mi_e = Mthrust_e + Mwind_e;
 
 dR_I = V_I;
 dV_I = E_Fi_I/m;
@@ -35,7 +42,7 @@ dV_I = E_Fi_I/m;
 dw_e = J_e_inv*(E_Mi_e - cross(w_e, (J_e*w_e)));
 dL = (1/2)*quatmultiply_sym(L, [0; w_e]);
 
-p = [a; b; g; m; J_e(:); J_e_inv(:); Xthrust_e(:)];
+p = [a; b; g; m; J_e(:); J_e_inv(:); Xthrust_e(:); Xwind_e(:)];
 
 dX = [...
     dR_I; ...

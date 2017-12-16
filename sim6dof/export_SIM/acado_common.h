@@ -55,7 +55,7 @@ typedef double real_t;
 /** Number of control/estimation intervals. */
 #define ACADO_N 1
 /** Number of online data values. */
-#define ACADO_NOD 0
+#define ACADO_NOD 3
 /** Number of control variables. */
 #define ACADO_NU 3
 /** Number of output functions. */
@@ -95,13 +95,13 @@ real_t rk_dim39_swap;
 /** Column vector of size: 39 */
 real_t rk_dim39_bPerm[ 39 ];
 
-/** Column vector of size: 222 */
-real_t rhs_aux[ 222 ];
+/** Column vector of size: 246 */
+real_t rhs_aux[ 246 ];
 
 real_t rk_ttt;
 
-/** Row vector of size: 16 */
-real_t rk_xxx[ 16 ];
+/** Row vector of size: 19 */
+real_t rk_xxx[ 19 ];
 
 /** Matrix of size: 13 x 3 (row major format) */
 real_t rk_kkk[ 39 ];
@@ -140,7 +140,7 @@ real_t rk_diffsNew2[ 208 ];
 
 /** Performs the integration and sensitivity propagation for one shooting interval.
  *
- *  \param rk_eta Working array of size 16 to pass the input values and return the results.
+ *  \param rk_eta Working array of size 19 to pass the input values and return the results.
  *  \param resetIntegrator The internal memory of the integrator can be reset.
  *
  *  \return Status code of the integrator.

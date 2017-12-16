@@ -6,8 +6,10 @@ init_params_6dof;
 
 %%
 
-Fthrust_e = [1; 0; m*g + 1];
-u = [Fthrust_e];
+Fthrust_e = [0; 0; m*g + 1];
+
+Fwind_I = [0; 0; 0];
+u = [Fthrust_e; Fwind_I];
 
 R_I = [0; 0; 0];
 V_I = [0; 0; 0];
@@ -58,9 +60,9 @@ xlim([-sk, sk])
 ylim([-sk, sk])
 zlim([-1, sk])
 
-% view([-1 -1 0.5])
+view([-1 -1 0.5])
 
-view([0 -1 0]) % XZ
+% view([0 -1 0]) % XZ
 
 T = zeros(4, 4);
 T(end) = 1;
@@ -74,7 +76,7 @@ t = 0;
 
 while t < 10
     clc
-    [X, Debug] = get_simulate(@get_symgen_step_6dof, X, u,  dt, p);
+    [X, Debug] = get_simulate(@get_symgen_step_6dof, X, u, dt, p);
     t = t + dt;
 %     disp(t)
     

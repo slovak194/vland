@@ -1,20 +1,20 @@
 clc
 clear
+clear all
+clear functions
 init_params_6dof;
 
 X0 = [...
-    -2;  0;  2; ...
-    0;  0;  0; ...
+    0;  0;  1; ...
+    1;  0;  0; ...
     0;  0;  0; ...
     1;  0;  0;  0; ...
     ]';
 
 Xref = [...
-    0;  0;  a; ...
-    0;  0;  0; ...
-    0;  0;  0; ...
-    1;  0;  0;  0; ...
-    ]';
+    0.3;  -0.3;  1; 0;  0;  0;  0;  0;  0;  1;  0;  0;  0]';
+
+%%
 
 input.W = diag([...
     1 1 1 ...
@@ -23,6 +23,7 @@ input.W = diag([...
     1 1 1 1 ...
     1 1 1 ...
     ].*10^0);
+
 input.WN = diag([...
     100 100 1 ...
     10 10 50 ...
@@ -30,17 +31,13 @@ input.WN = diag([...
     1 1 1 1 ...
     ].*10^4);
 
-%%
-
 input.x = repmat(Xref, N+1, 1);
 Xref = repmat(Xref, N, 1);
 % input.od = repmat(p', N+1, 1);
-input.od = [];
+input.od = repmat([0; 0; 0]', N+1, 1);
 
-Uref = zeros(N, n_u);
-input.u = Uref;
-
-input.y = [Xref(1:N,:) Uref];
+input.u = zeros(N, n_u);
+input.y = [Xref zeros(N, n_u)];
 input.yN = Xref(N,:);
 
 iter = 0; time = 0;
@@ -48,6 +45,10 @@ Tf = 100;
 KKT_MPC = []; INFO_MPC = [];
 controls_MPC = [];
 state_sim = X0;
+
+X = X0;
+
+
 u = [0;0;0];
 
 %%
@@ -66,6 +67,7 @@ plot3(Xref(1,1), Xref(1,2), Xref(1,3), '*')
 plot3(X0(1,1), X0(1,2), X0(1,3), 'o')
 
 track = plot3(0,0,0,'.');
+predicted_track = plot3(0,0,0,'.r');
 
 qf = plot3(h, ...
     [0, 1], ...
@@ -92,8 +94,8 @@ xlim([min_x, max_x])
 ylim([min_y, max_y])
 zlim([-1, max_z])
 
-% view([-1 -1 0.5])
-view([0 -1 0]) % XZ
+view([-1 -1 0.5])
+% view([0 -1 0]) % XZ
 
 T = zeros(4, 4);
 T(end) = 1;
@@ -111,6 +113,7 @@ drawnow
 %%
 
 stop = false;
+figure(2);
 
 while time(end) < inf
     i = i+1;
@@ -134,8 +137,10 @@ while time(end) < inf
     
     iter = iter+1;
     nextTime = iter*dt;
-    disp(['current time: ' num2str(nextTime) '   ' char(9) ' (RTI step: ' ...
-        num2str(100*output.info.cpuTime/dt) ' %)'])
+    k_norm = norm(states.value - input.x0');
+    disp(['time: ', num2str(nextTime), char(9),...
+        '(RT: ', num2str(100*output.info.cpuTime/dt) ' %)', char(9), ...
+        'k_norm: ', num2str(k_norm)]);
     time = [time nextTime];
     
     qf.XData = [0, 2*a*sim_input.u(1)/(m*g)];
@@ -157,12 +162,18 @@ while time(end) < inf
     track.YData = [track.YData, states.value(2)];
     track.ZData = [track.ZData, states.value(3)];
     
+    predicted_track.XData = output.x(:, 1);
+    predicted_track.YData = output.x(:, 2);
+    predicted_track.ZData = output.x(:, 3);
+
     drawnow
     
-    if R_I(3) < a || ~ishandle(hf2)
+    if R_I(3) < a || ~ishandle(hf2) || k_norm < 0.01
         break
     end
 end
+
+% [states.value, input.x0', states.value-input.x0']
 
 %%
 
