@@ -30,12 +30,13 @@ X = [...
     ];
 
 % Differential Equation
-f = dot(X) == is(get_symgen_step_6dof(dt, X, u, p));
+f = dot(X) == is(get_symgen_step_6dof([], X, u, p));
 
 h = [diffStates; controls];
 hN = [diffStates];
 
 % SIMexport
+export_prefix = '_6dof';
 acadoSet('problemname', 'sim');
 
 numSteps = 5;
@@ -47,11 +48,14 @@ sim.set( 'NUM_INTEGRATOR_STEPS',        numSteps        );
 %%
 
 if EXPORT
-    sim.exportCode( 'export_SIM' );
-    
-    cd export_SIM
-    make_acado_integrator('../../generated/integrate_rocket')
-    cd ..
+    oldwd = pwd;
+    export_folder_name = ['sim', export_prefix];
+    export_bin_name = [export_folder_name, '_step'];
+    cd('/home/slovak/vland/generated');
+    sim.exportCode(export_folder_name);
+    cd(export_folder_name);
+    make_acado_integrator(['../', export_bin_name]);
+    cd(oldwd);
 end
 
 %% MPCexport
@@ -100,17 +104,15 @@ mpc.set( 'LEVENBERG_MARQUARDT', 		 1e-10				);
 %%
 
 if EXPORT
-    mpc.exportCode( 'export_MPC' );
-    copyfile([acado_root, '/external_packages/qpoases'], 'export_MPC/qpoases', 'f')
-    
-    cd export_MPC
-    make_acado_solver('../acado_MPCstep')
-%     make_acado_solver_sfunction;
-    cd ..
-    
-    delete('./*acadodata*');
-    delete('./*RUN*');
-    delete('./*.cpp');
+    oldwd = pwd;
+    export_folder_name = ['mpc', export_prefix];
+    export_bin_name = [export_folder_name, '_step'];
+    cd('/home/slovak/vland/generated');
+    mpc.exportCode(export_folder_name);
+    cd(export_folder_name);
+    copyfile([acado_root, '/external_packages/qpoases'], './qpoases', 'f')
+    make_acado_solver(['../', export_bin_name]);
+    cd(oldwd);
 end
 
 rehash

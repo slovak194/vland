@@ -5,18 +5,22 @@ clear functions
 init_params_6dof;
 
 X0 = [...
-    0;  0;  1; ...
-    1;  0;  0; ...
+    -3;  0;  1; ...
+    0;  0;  0; ...
     0;  0;  0; ...
     1;  0;  0;  0; ...
     ]';
 
 Xref = [...
-    0.3;  -0.3;  1; 0;  0;  0;  0;  0;  0;  1;  0;  0;  0]';
+    -2.5;  0;  2; ...
+    0;  0;  0; ...
+    0;  0;  0; ...
+    1;  0;  0;  0; ...
+    ]';
 
 %%
 
-input.W = diag([...
+mpc_input.W = diag([...
     1 1 1 ...
     1 1 1 ...
     1 1 1 ...
@@ -24,30 +28,27 @@ input.W = diag([...
     1 1 1 ...
     ].*10^0);
 
-input.WN = diag([...
-    100 100 1 ...
+mpc_input.WN = diag([...
+    100 100 100 ...
     10 10 50 ...
     1 1 1 ...
-    1 1 1 1 ...
+    0 0 0 0 ...
     ].*10^4);
 
-input.x = repmat(Xref, N+1, 1);
-Xref = repmat(Xref, N, 1);
-% input.od = repmat(p', N+1, 1);
-input.od = repmat([0; 0; 0]', N+1, 1);
-
-input.u = zeros(N, n_u);
-input.y = [Xref zeros(N, n_u)];
-input.yN = Xref(N,:);
+Xref_grid = repmat(Xref, N+1, 1);
+mpc_input.x = Xref_grid;
+mpc_input.od = repmat([0; 0; 0]', N+1, 1);
+mpc_input.u = zeros(N, n_u);
+mpc_input.y = [Xref_grid(1:end-1, :) zeros(N, n_u)];
+mpc_input.yN = Xref;
 
 iter = 0; time = 0;
 Tf = 100;
 KKT_MPC = []; INFO_MPC = [];
-controls_MPC = [];
+controls_MPC = {};
 state_sim = X0;
 
-X = X0;
-
+X.value = X0';
 
 u = [0;0;0];
 
@@ -63,7 +64,7 @@ grid on
 % axis equal
 hold on
 
-plot3(Xref(1,1), Xref(1,2), Xref(1,3), '*')
+Xrefplot = plot3(Xref(1,1), Xref(1,2), Xref(1,3), '*');
 plot3(X0(1,1), X0(1,2), X0(1,3), 'o')
 
 track = plot3(0,0,0,'.');
@@ -94,8 +95,8 @@ xlim([min_x, max_x])
 ylim([min_y, max_y])
 zlim([-1, max_z])
 
-view([-1 -1 0.5])
-% view([0 -1 0]) % XZ
+% view([-1 -1 0.5])
+view([0 -1 0]) % XZ
 
 T = zeros(4, 4);
 T(end) = 1;
@@ -116,64 +117,85 @@ stop = false;
 figure(2);
 
 while time(end) < inf
-    i = i+1;
     % Solve NMPC OCP
-    input.x0 = state_sim(end,:);
-    output = acado_MPCstep(input);
-    % Save the MPC step
-    INFO_MPC = [INFO_MPC; output.info];
-    KKT_MPC = [KKT_MPC; output.info.kktValue];
-    controls_MPC = [controls_MPC; output.u(1,:)];
-    input.x = output.x;
-    input.u = output.u;
+    mpc_input.x0 = X.value';
+    mpc_output = mpc_6dof_step(mpc_input);
+    
     
     % Simulate system
-    sim_input.x = state_sim(end,:).';
-    sim_input.u = output.u(1,:).';
-    states = integrate_rocket(sim_input);
-    state_sim = [state_sim; states.value'];
+    sim_input.x = X.value;
+    sim_input.od = mpc_input.od(1,:)';
+    sim_input.u = mpc_output.u(1,:).';
+    X = sim_6dof_step(sim_input);
     
+    k_norm = norm(X.value - Xref');
+    
+    if false %k_norm < 0.3
+        Xref(1) = Xref(1) + 0.3;
+        Xref_grid = repmat(Xref, N+1, 1);
+        mpc_input.x = Xref_grid;
+        mpc_input.od = repmat([0; 0; 0]', N+1, 1);
+        mpc_input.u = zeros(N, n_u);
+        mpc_input.y = [Xref_grid(1:end-1, :) zeros(N, n_u)];
+        mpc_input.yN = Xref;
+    else
+        mpc_input.x = mpc_output.x;
+        mpc_input.u = mpc_output.u;
+    end
+    
+    
+    
+    
+    % Save values
+    INFO_MPC = [INFO_MPC; mpc_output.info];
+    KKT_MPC = [KKT_MPC; mpc_output.info.kktValue];
+    controls_MPC = [controls_MPC; mpc_output.u];
+    state_sim = [state_sim; X.value'];
     u = [u, sim_input.u];
     
+    % Visualize
     iter = iter+1;
     nextTime = iter*dt;
-    k_norm = norm(states.value - input.x0');
-    disp(['time: ', num2str(nextTime), char(9),...
-        '(RT: ', num2str(100*output.info.cpuTime/dt) ' %)', char(9), ...
-        'k_norm: ', num2str(k_norm)]);
     time = [time nextTime];
+    clc
+    disp(['time: ', num2str(nextTime), char(9),...
+        '(RT: ', num2str(100*mpc_output.info.cpuTime/dt) ' %)', char(9), ...
+        'k_norm: ', num2str(k_norm)]);
+    
     
     qf.XData = [0, 2*a*sim_input.u(1)/(m*g)];
     qf.YData = [0, 2*a*sim_input.u(2)/(m*g)];
     qf.ZData = [-a, -a + 2*a*sim_input.u(3)/(m*g)];
     
-    R_I = states.value(1:3);
-    V_I = states.value(4:6);
-    w_e = states.value(7:9);
-    L = states.value(10:13);
-    
-    [R_I, V_I, w_e, sim_input.u];
+    R_I = X.value(1:3);
+    V_I = X.value(4:6);
+    w_e = X.value(7:9);
+    L = X.value(10:13);
     
     T(1:3,1:3) = quat2dcm(quatconj(L'));
     T(1:3,4) = R_I;
     h.Matrix = T;
+        
+    Xrefplot.XData = Xref(1,1);
+    Xrefplot.YData = Xref(1,2);
+    Xrefplot.ZData = Xref(1,3);
+        
+    track.XData = [track.XData, X.value(1)];
+    track.YData = [track.YData, X.value(2)];
+    track.ZData = [track.ZData, X.value(3)];
     
-    track.XData = [track.XData, states.value(1)];
-    track.YData = [track.YData, states.value(2)];
-    track.ZData = [track.ZData, states.value(3)];
+    predicted_track.XData = mpc_output.x(:, 1);
+    predicted_track.YData = mpc_output.x(:, 2);
+    predicted_track.ZData = mpc_output.x(:, 3);
     
-    predicted_track.XData = output.x(:, 1);
-    predicted_track.YData = output.x(:, 2);
-    predicted_track.ZData = output.x(:, 3);
-
     drawnow
     
-    if R_I(3) < a || ~ishandle(hf2) || k_norm < 0.01
+    if R_I(3) < a || ~ishandle(hf2) || k_norm < 0.06
         break
     end
 end
 
-% [states.value, input.x0', states.value-input.x0']
+% [X.value, input.x0', X.value-input.x0']
 
 %%
 

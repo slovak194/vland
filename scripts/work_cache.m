@@ -1,4 +1,20 @@
 clc
+figure(4)
+cla
+
+
+
+for i = 1:numel(controls_MPC)
+    figure(4)
+
+plot(controls_MPC{i})
+drawnow
+pause(0.01)
+
+
+end
+
+%%
 
 
 X = sym('X', [13, 1], 'real');
