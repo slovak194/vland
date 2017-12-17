@@ -1,6 +1,9 @@
 *ACADOtoolkit*
 
-generated*
+/generated/*
+/generated/*/
+!/generated/mpc_6dof/
+!/generated/CMakeLists.txt
 cmake-build-debug
 
 .idea

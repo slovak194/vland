@@ -7,7 +7,10 @@ include(installation)
 include(deb_target)
 
 
+add_subdirectory(generated)
+
 add_executable(main_node src/main.cpp)
+
 
 add_install_component(vland)
 install(TARGETS main_node DESTINATION /usr/bin COMPONENT vland)
