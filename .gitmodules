@@ -1,5 +1,5 @@
 [submodule "acado"]
-	path = acado
+	path = modules/acado
 	url = https://github.com/acado/acado.git
 [submodule "modules/cmake_deb_helpers"]
 	path = modules/cmake_deb_helpers
