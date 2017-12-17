@@ -1,6 +1,9 @@
 *ACADOtoolkit*
 
 generated*
+cmake-build-debug
+
+.idea
 
 *.m~
 *.asv

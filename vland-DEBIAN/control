@@ -1,0 +1,7 @@
+Package: vland
+Version: %VERSION%
+Section: misc
+Architecture: %ARCH%
+Depends: %DEPENDENCIES%
+Maintainer: Oleksandr Slovak <slovak194@gmail.com>
+Description: vland
