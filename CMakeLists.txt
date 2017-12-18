@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.9)
 project(vland)
 
+set(CMAKE_CXX_STANDARD 17)
+
+find_package(OpenCV REQUIRED)
+message(STATUS "OpenCV include dirs: ${OpenCV_INCLUDE_DIRS}, libs: ${OpenCV_LIBRARIES}")
+include_directories(${OpenCV_INCLUDE_DIRS})
+
 add_subdirectory(modules/cmake_deb_helpers)
 set(CMAKE_MODULE_PATH "${cmake_deb_helpers_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 include(installation)
@@ -10,6 +16,9 @@ include(deb_target)
 add_subdirectory(generated)
 
 add_executable(main_node src/main.cpp)
+target_link_libraries(main_node
+        mpc_6dof
+        opencv_core)
 
 
 add_install_component(vland)

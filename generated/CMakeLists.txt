@@ -22,20 +22,26 @@ set(QP_OASES_INCLUDES
 
 macro(MAKE_MPC_SOLVER MPC_SOLVER_NAME)
 
-set(SOLVER_SRCS
-        ${MPC_SOLVER_NAME}/acado_qpoases_interface.cpp
-        ${MPC_SOLVER_NAME}/acado_integrator.c
-        ${MPC_SOLVER_NAME}/acado_solver.c
-        ${MPC_SOLVER_NAME}/acado_auxiliary_functions.c
-        )
+    set(SOLVER_SRCS
+            ${MPC_SOLVER_NAME}/acado_qpoases_interface.cpp
+            ${MPC_SOLVER_NAME}/acado_integrator.c
+            ${MPC_SOLVER_NAME}/acado_solver.c
+            ${MPC_SOLVER_NAME}/acado_auxiliary_functions.c
+            )
 
-add_library(${MPC_SOLVER_NAME} STATIC ${QP_OASES_SRCS} ${SOLVER_SRCS})
+    add_library(${MPC_SOLVER_NAME} STATIC ${QP_OASES_SRCS} ${SOLVER_SRCS})
+    target_compile_options(${MPC_SOLVER_NAME} PRIVATE -O3 -finline-functions)
+    target_link_libraries(${MPC_SOLVER_NAME} m stdc++ rt)
 
-target_include_directories(${MPC_SOLVER_NAME} PRIVATE
-        ${MPC_SOLVER_NAME}
-        ${QP_OASES_INCLUDES}
-        )
+    target_include_directories(${MPC_SOLVER_NAME} PRIVATE
+            ${MPC_SOLVER_NAME}
+            ${QP_OASES_INCLUDES}
+            )
 
 endmacro(MAKE_MPC_SOLVER)
 
 MAKE_MPC_SOLVER(mpc_6dof)
+
+
+add_executable(dummy_mex mpc_6dof/acado_solver_mex.c)
+target_include_directories(dummy_mex PRIVATE /usr/local/MATLAB/R2017a/extern/include)
