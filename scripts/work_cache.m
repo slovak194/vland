@@ -1,18 +1,60 @@
 clc
-figure(4)
-cla
+clear
+
+syms m g a b dt Fx real
+
+% J_e = sym('J_e', [3, 3], 'real');
+% J_e_inv = sym('J_e_inv', [3, 3], 'real');
+% 
+% R_I = sym('R_I_', [3, 1], 'real');
+% V_I = sym('V_I_', [3, 1], 'real');
+% w_e = sym('w_e_', [3, 1], 'real');
+L = sym('L_', [4, 1], 'real');
+
+Mthrust_e = sym('Mthrust_e', [3, 1], 'real');
+
+% 
+% X = [...
+%     R_I; ...
+%     V_I; ...
+%     w_e; ...
+%     L;...
+%     ];
+
+Fthrust_e = sym('Fthrust_e', [3, 1], 'real');
+Xthrust_e = sym('Xthrust_e', [3, 1], 'real');
+
+% 
+% Fwind_I = sym('Fwind_I', [3, 1], 'real');
+% Fwind_e = quatrotate_sym(L, Fwind_I);
+% Xwind_e = sym('Xwind_e', [3, 1], 'real');
+% Mwind_e = cross(Xwind_e, Fwind_e);
+% 
+% u = [Fthrust_e; Fwind_I];
+
+Fmg_I = [0; 0; -m*g];
+Fthrust_I = quatrotate_sym(quatconj_sym(L), Fthrust_e);
+
+% 
+% E_Fi_I = Fthrust_I + Fmg_I + Fwind_I;
+% E_Mi_e = Mthrust_e + Mwind_e;
+% 
+% dR_I = V_I;
+% dV_I = E_Fi_I/m;
+% 
+% dw_e = J_e_inv*(E_Mi_e - cross(w_e, (J_e*w_e)));
+% dL = (1/2)*quatmultiply_sym(L, [0; w_e]);
 
 
-
-for i = 1:numel(controls_MPC)
-    figure(4)
-
-plot(controls_MPC{i})
-drawnow
-pause(0.01)
+eq1 = Mthrust_e == cross(Xthrust_e, Fthrust_e)
+eq2 = Fx == dot(Xthrust_e, Fthrust_e)/norm(Xthrust_e)
 
 
-end
+res = solve(eq2, Fthrust_e)
+
+eq1 = subs(eq1, Fthrust_e, [res.Fthrust_e1; res.Fthrust_e2; res.Fthrust_e3])
+
+return
 
 %%
 

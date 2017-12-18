@@ -41,6 +41,11 @@ acadoSet('problemname', 'sim');
 
 numSteps = 5;
 sim = acado.SIMexport(dt);
+% A = -10;
+% B = 4;
+% C = 2.5;
+% 
+% sim.setLinearInput(C, A, B);
 sim.setModel(f);
 sim.set( 'INTEGRATOR_TYPE',             'INT_IRK_RIIA5' );
 sim.set( 'NUM_INTEGRATOR_STEPS',        numSteps        );
