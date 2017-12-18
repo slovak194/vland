@@ -72,19 +72,18 @@ ocp.minimizeLSQ( W, h );
 ocp.minimizeLSQEndTerm( WN, hN );
 
 %%
-%
+
 ocp.subjectTo( -lateral_thrust_lim <= Fthrust_e1 <= lateral_thrust_lim);
 ocp.subjectTo( -lateral_thrust_lim <= Fthrust_e2 <= lateral_thrust_lim);
 ocp.subjectTo( longitudal_thrust_down_lim <= Fthrust_e3 <= longitudal_thrust_up_lim);
 
-alpha_lim = sin((pi/12)/2);
+% alpha_lim = sin((pi/12)/2);
+% 
+% ocp.subjectTo( -alpha_lim <= L2 <= alpha_lim);
+% ocp.subjectTo( -alpha_lim <= L3 <= alpha_lim);
 
-ocp.subjectTo( -alpha_lim <= L2 <= alpha_lim);
-ocp.subjectTo( -alpha_lim <= L3 <= alpha_lim);
+% ocp.subjectTo( -5 <= V_I3 <= 5);
 
-% ocp.subjectTo( -1 <= w_e <= 1);
-
-ocp.subjectTo( -5 <= V_I3 <= 5);
 
 %%
 

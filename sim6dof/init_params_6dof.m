@@ -32,9 +32,9 @@ n_u = 3;
 
 N = 50;
 
-lateral_thrust_lim = 0.5*m*g;
-longitudal_thrust_up_lim = 2*m*g;
-longitudal_thrust_down_lim = 0.5*m*g;
+lateral_thrust_lim = 0.05*m*g;
+longitudal_thrust_up_lim = 1.1*m*g;
+longitudal_thrust_down_lim = 0.9*m*g;
 
 %% ACADO system
 EXPORT = 1;

@@ -266,9 +266,6 @@ real_t w2[ 13 ];
 /** Matrix of size: 150 x 150 (row major format) */
 real_t H[ 22500 ];
 
-/** Matrix of size: 150 x 150 (row major format) */
-real_t A[ 22500 ];
-
 /** Column vector of size: 150 */
 real_t g[ 150 ];
 
@@ -279,16 +276,10 @@ real_t lb[ 150 ];
 real_t ub[ 150 ];
 
 /** Column vector of size: 150 */
-real_t lbA[ 150 ];
-
-/** Column vector of size: 150 */
-real_t ubA[ 150 ];
-
-/** Column vector of size: 150 */
 real_t x[ 150 ];
 
-/** Column vector of size: 300 */
-real_t y[ 300 ];
+/** Column vector of size: 150 */
+real_t y[ 150 ];
 
 
 } ACADOworkspace;
