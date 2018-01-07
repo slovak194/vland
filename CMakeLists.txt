@@ -26,3 +26,13 @@ install(TARGETS main_node DESTINATION /usr/bin COMPONENT vland)
 
 set(DEB_VERSION 1.0)
 add_deb_target(vland)
+
+set(REMOTE_BUILD_COMMAND
+        ssh nvidia@192.168.0.5 'cd vland && git pull && rm -rf build/* && cd build && cmake ../ && make -j6 main_node && make -j6 deb'
+        )
+
+message(${REMOTE_BUILD_COMMAND})
+
+add_custom_target(remote_build
+        COMMAND ${REMOTE_BUILD_COMMAND}
+        DEPENDS main_node deb)
