@@ -5,6 +5,7 @@
 !/generated/mpc_6dof/
 !/generated/CMakeLists.txt
 cmake-build-debug
+build
 
 .idea
 
